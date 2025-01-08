@@ -1,4 +1,4 @@
-[gd_scene load_steps=187 format=2]
+[gd_scene load_steps=191 format=2]
 
 [ext_resource path="res://scenes/actors/mario/animation_frames.tres" type="SpriteFrames" id=1]
 [ext_resource path="res://scenes/actors/mario/states/Bounce.gd" type="Script" id=2]
@@ -75,6 +75,7 @@
 [ext_resource path="res://scenes/actors/mario/mario_sounds.tscn" type="PackedScene" id=73]
 [ext_resource path="res://scenes/actors/mario/luigi_sounds.tscn" type="PackedScene" id=74]
 [ext_resource path="res://scenes/actors/mario/states/LaunchStar.gd" type="Script" id=75]
+[ext_resource path="res://shaders/silhouette.tres" type="Material" id=76]
 [ext_resource path="res://scenes/actors/objects/metal_powerup/icon.png" type="Texture" id=77]
 [ext_resource path="res://scenes/actors/objects/rainbow_powerup/icon.png" type="Texture" id=78]
 [ext_resource path="res://scenes/actors/objects/vanish_powerup/icon.png" type="Texture" id=79]
@@ -82,6 +83,8 @@
 [ext_resource path="res://scenes/actors/mario/states/QuicksandHop.gd" type="Script" id=81]
 [ext_resource path="res://scenes/actors/mario/states/QuicksandIdle.gd" type="Script" id=82]
 [ext_resource path="res://scenes/actors/objects/quicksand/quicksand_particles.tscn" type="PackedScene" id=83]
+[ext_resource path="res://scenes/actors/mario/SilhouetteSprite.gd" type="Script" id=84]
+[ext_resource path="res://scenes/actors/objects/pipe/pipe.png" type="Texture" id=85]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 5.5, 4 )
@@ -268,7 +271,10 @@ extents = Vector2( 8.5, 8.5 )
 extents = Vector2( 6.5, 17.5 )
 
 [sub_resource type="RectangleShape2D" id=103]
-extents = Vector2( 7, 17 )
+extents = Vector2( 7, 15.5 )
+
+[sub_resource type="RectangleShape2D" id=109]
+extents = Vector2( 7, 7 )
 
 [sub_resource type="RectangleShape2D" id=31]
 extents = Vector2( 4, 15.7 )
@@ -1498,18 +1504,21 @@ luigi_fric = 13.5
 luigi_speed = 216.0
 
 [node name="Collision" type="CollisionShape2D" parent="."]
+visible = false
 modulate = Color( 1, 0, 0, 1 )
 position = Vector2( 0.5, -4 )
 z_index = 2
 shape = SubResource( 1 )
 
 [node name="CollisionDive" type="CollisionShape2D" parent="."]
+visible = false
 position = Vector2( 0.5, -7 )
 z_index = 2
 shape = SubResource( 4 )
 disabled = true
 
 [node name="GroundCollision" type="CollisionShape2D" parent="."]
+visible = false
 position = Vector2( 0.5, 0 )
 shape = SubResource( 5 )
 disabled = true
@@ -1537,6 +1546,7 @@ disabled = true
 one_way_collision_margin = 0.0
 
 [node name="GroundCollisionDive" type="CollisionShape2D" parent="."]
+visible = false
 position = Vector2( 0.5, -6 )
 z_index = 2
 shape = SubResource( 7 )
@@ -1550,6 +1560,7 @@ shape = SubResource( 108 )
 disabled = true
 
 [node name="CrushedCollisionDive" type="CollisionShape2D" parent="."]
+visible = false
 position = Vector2( 0, 7 )
 z_index = 2
 shape = SubResource( 108 )
@@ -1561,17 +1572,40 @@ frames = ExtResource( 1 )
 animation = "idleRight"
 playing = true
 
+[node name="SilhouetteSprite" type="AnimatedSprite" parent="Sprite"]
+light_mask = 2
+material = ExtResource( 76 )
+z_index = 27
+frames = ExtResource( 1 )
+animation = "idleRight"
+playing = true
+script = ExtResource( 84 )
+
 [node name="Fludd" type="AnimatedSprite" parent="Sprite"]
 visible = false
 frames = ExtResource( 23 )
 animation = "idleRight"
 script = ExtResource( 63 )
 
+[node name="SilhouetteFludd" type="AnimatedSprite" parent="Sprite/Fludd"]
+light_mask = 2
+material = ExtResource( 76 )
+frames = ExtResource( 23 )
+animation = "idleRight"
+script = ExtResource( 84 )
+
 [node name="Wings" type="AnimatedSprite" parent="Sprite"]
 visible = false
 frames = ExtResource( 65 )
 animation = "idleRight"
 script = ExtResource( 63 )
+
+[node name="SilhouetteWings" type="AnimatedSprite" parent="Sprite/Wings"]
+light_mask = 2
+material = ExtResource( 76 )
+frames = ExtResource( 65 )
+animation = "idleRight"
+script = ExtResource( 84 )
 
 [node name="Water2" type="AnimatedSprite" parent="Sprite"]
 visible = false
@@ -1901,13 +1935,20 @@ position = Vector2( 0.5, 5 )
 shape = SubResource( 30 )
 
 [node name="LiquidDetector" type="Area2D" parent="."]
+visible = false
 collision_layer = 0
 collision_mask = 32768
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="LiquidDetector"]
+[node name="BaseCollision" type="CollisionShape2D" parent="LiquidDetector"]
 modulate = Color( 0.839216, 0.345098, 0.345098, 1 )
-position = Vector2( 0, 4 )
+position = Vector2( 0, 5.5 )
 shape = SubResource( 103 )
+
+[node name="DiveCollision" type="CollisionShape2D" parent="LiquidDetector"]
+modulate = Color( 0.839216, 0.345098, 0.345098, 1 )
+position = Vector2( 0, -3 )
+shape = SubResource( 109 )
+disabled = true
 
 [node name="PipeDetector" type="Area2D" parent="."]
 visible = false
@@ -1986,6 +2027,7 @@ collide_with_areas = true
 collide_with_bodies = false
 
 [node name="GroundCheck" type="RayCast2D" parent="."]
+visible = false
 position = Vector2( 0.5, 0 )
 enabled = true
 cast_to = Vector2( 0, 26 )
@@ -2240,3 +2282,15 @@ one_shot = true
 [node name="GroundColliderEnableTimer" type="Timer" parent="."]
 wait_time = 0.05
 one_shot = true
+
+[node name="Pipe" type="Sprite" parent="."]
+position = Vector2( 17, 5 )
+texture = ExtResource( 85 )
+
+[node name="SilhouetteMask" type="Light2D" parent="Pipe"]
+texture = ExtResource( 85 )
+mode = 3
+range_item_cull_mask = 2
+shadow_enabled = true
+shadow_color = Color( 1, 1, 1, 0 )
+shadow_item_cull_mask = 2

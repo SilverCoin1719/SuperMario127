@@ -1,0 +1,24 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=2]
+
+[sub_resource type="Shader" id=110]
+code = "shader_type canvas_item;
+
+varying vec4 new_color;
+
+void fragment() {
+	vec4 base = texture(TEXTURE, UV);
+
+	if (AT_LIGHT_PASS) {
+		COLOR = vec4(vec3(.1), base.a/2.0);
+	}
+	else {
+		COLOR = vec4(0.0)
+	}
+}
+
+void light() {
+	LIGHT = vec4(vec3(1.0), LIGHT.a);
+}"
+
+[resource]
+shader = SubResource( 110 )
